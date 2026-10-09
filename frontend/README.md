@@ -1,70 +1,179 @@
-# Getting Started with Create React App
+# 🎯 AI Career Guidance System
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+**An AI-powered career counseling platform that analyzes a user's skills, experience, or resume (PDF) and generates personalized career guidance using LLM-based reasoning.**
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## 📌 Problem Statement
 
-### `npm start`
+Students and early-career professionals often struggle to identify the right career path, the skill gaps they need to fill, and a clear learning roadmap — especially without access to personalized mentorship. Generic career advice found online is rarely tailored to an individual's actual skills and experience.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+**AI Career Guidance System** solves this by using a large language model to act as a virtual career counselor — taking a user's skills/experience (or their resume directly) and generating a structured, personalized career plan in seconds.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+---
 
-### `npm test`
+## 🎯 Objectives
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- Provide personalized career path suggestions based on a user's actual skills and experience
+- Support both **manual skill input** and **direct resume (PDF) upload**
+- Identify skill gaps and generate a learning roadmap to close them
+- Suggest concrete, suitable job roles to apply for
+- Give actionable resume improvement tips (for the resume-analysis flow)
 
-### `npm run build`
+---
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## 🏗️ Architecture
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+             ┌───────────────────────────┐
+             │   React Frontend (UI)     │
+             └─────────────┬─────────────┘
+                           │
+             ┌─────────────▼─────────────┐
+             │   FastAPI Backend (API)   │
+             └─────────────┬─────────────┘
+                           │
+        ┌──────────────────┴──────────────────┐
+        │                                      │
+        ┌─────────▼─────────┐ ┌─────────▼─────────┐
+│ /analyze │ │ /analyze-resume │
+│ (manual skills + │ │ (PDF resume │
+│ experience input)│ │ upload) │
+└─────────┬─────────┘ └─────────┬─────────┘
+│ │
+│ ┌─────────────▼─────────────┐
+│ │ PyMuPDF (fitz) extracts │
+│ │ text from the PDF │
+│ └─────────────┬─────────────┘
+│ │
+└──────────────────┬───────────────────┘
+▼
+┌───────────────────────────┐
+│ Groq API (Llama 3.3 70B) │
+│ Generates structured │
+│ career guidance │
+└───────────────────────────┘
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-### `npm run eject`
+---
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## 🧰 Tech Stack
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+| Layer | Technology |
+|---|---|
+| Backend | Python, FastAPI |
+| AI / LLM | Groq API (`llama-3.3-70b-versatile`) |
+| Resume Parsing | PyMuPDF (`fitz`) |
+| Frontend | React (Create React App) |
+| Environment Config | python-dotenv |
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+---
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## 📂 Project Structure
 
-## Learn More
+ai-career-guidance/
+├── backend/
+│ ├── main.py # FastAPI app and API routes
+│ ├── gemini_service.py # LLM logic (career & resume analysis via Groq)
+│ ├── .env # Groq API key (not committed)
+│ └── requirements.txt
+└── frontend/
+├── src/ # React application source
+└── public/
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+---
 
-### Code Splitting
+## 🔌 API Endpoints
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/` | Health check — confirms the API is running |
+| `POST` | `/analyze` | Takes manually entered `skills` and `experience`, returns personalized career guidance |
+| `POST` | `/analyze-resume` | Accepts a PDF resume upload, extracts its text, and returns personalized career guidance based on its content |
 
-### Analyzing the Bundle Size
+**Example `/analyze` request:**
+```json
+POST /analyze
+{
+  "skills": "Python, FastAPI, React, SQL",
+  "experience": "Built 2 full-stack projects, 6-month internship as a backend developer"
+}
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+**Example response:**
+```json
+{
+  "guidance": "1. Top 3 suitable career paths: ...\n2. Skill gaps to fill: ...\n3. Recommended learning roadmap: ...\n4. Suggested job roles to apply for: ..."
+}
+```
 
-### Making a Progressive Web App
+**`/analyze-resume`** takes a `multipart/form-data` request with a `file` field containing the PDF, and returns the same style of structured guidance — additionally including a current skill assessment and resume improvement tips.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+---
 
-### Advanced Configuration
+## ⚙️ Setup & Installation
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+### 1. Clone the repository
+```bash
+git clone https://github.com/Shivesh1p/ai-career-guidance.git
+cd ai-career-guidance
+```
 
-### Deployment
+### 2. Backend setup
+```bash
+cd backend
+python -m venv venv
+venv\Scripts\activate          # Windows
+# source venv/bin/activate     # macOS/Linux
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+pip install -r requirements.txt
+```
 
-### `npm run build` fails to minify
+Create a `.env` file inside `backend/`:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+GROQ_API_KEY=your_groq_api_key_here
+
+(Get a free key at [console.groq.com/keys](https://console.groq.com/keys))
+
+Run the backend:
+```bash
+uvicorn main:app --reload
+```
+API available at: `http://127.0.0.1:8000`
+
+### 3. Frontend setup
+```bash
+cd frontend
+npm install
+npm start
+```
+App available at: `http://localhost:3000`
+
+---
+
+## 🧪 How It Works
+
+1. **Manual input flow:** User enters their skills and experience in the UI → sent to `/analyze` → Groq-powered LLM generates career paths, skill gaps, and a learning roadmap.
+2. **Resume upload flow:** User uploads a PDF resume → backend extracts the text using PyMuPDF → sent to `/analyze-resume` → LLM generates a skill assessment, career paths, skill gaps, a learning roadmap, job role suggestions, and resume improvement tips.
+
+---
+
+## 🔭 Future Scope
+
+- Add ChromaDB-based vector search to ground suggestions in real job-market data
+- Support multiple resume formats (DOCX, plain text)
+- Add user accounts to save and track guidance history over time
+- Expand the learning roadmap into clickable course/resource links
+
+---
+
+## 👤 Author
+
+**Shivesh Pandey**
+Final Year B.E. Information Technology, Shree L.R. Tiwari College of Engineering
+
+---
+
+## 📄 License
+
+This project is developed for academic and portfolio purposes.
